@@ -1,0 +1,1 @@
+The blogging platform is developed using the MERN (MongoDB, ExpressJS, ReactJS, NodeJS) stack, allowing users to create, read, update, and delete blog posts. It provides a user-friendly interface for managing blog content, including features like adding new posts and viewing existing posts.
