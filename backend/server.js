@@ -4,95 +4,90 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4000;
 
 // MongoDB Connection
-mongoose.connect('mongodb://0.0.0.0:27017/blogDB', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
+mongoose.connect('mongodb+srv://mohdkhaleeq07:areeb01@cluster0.hmjibap.mongodb.net/blogDB',
+    {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    });
 const db = mongoose.connection;
-db.on('error', console.error.bind(console, 'MongoDB connection error:'));
+db.on('error', console.error.bind(console,
+    'MongoDB connection error:'));
 db.once('open', () => {
-  console.log('Connected to MongoDB');
+    console.log('Connected to MongoDB');
 });
 
-// Body parsing middleware
-app.use(cors({
-  origin: 'http://localhost:3000' // Update with your frontend URL
-}));
-app.use(bodyParser.json());
-
+app.use(cors());
 // Post Model
 const Post = mongoose.model('Post', {
-  title: String,
-  content: String,
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: { type: Date }
+    title: String,
+    content: String,
+    createdAt: {
+        type: Date,
+        default: Date.now
+    },
+    updatedAt: { type: Date }
 });
 
-app.get('/', (req, res) => {
-    res.send('Server is running');
-  });
-  
+// Middleware
+app.use(bodyParser.json());
+
 // Routes
 app.get('/posts', async (req, res) => {
-  try {
-    const posts = await Post.find();
-    res.json(posts);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
+    try {
+        const posts = await Post.find();
+        res.json(posts);
+    } catch (err) {
+        res.status(500).json({
+            message: err.message
+        });
+    }
 });
 
 app.post('/posts', async (req, res) => {
-  const post = new Post({
-    title: req.body.title,
-    content: req.body.content
-  });
+    const post = new Post({
+        title: req.body.title,
+        content: req.body.content
+    });
 
-  try {
-    const newPost = await post.save();
-    res.status(201).json(newPost);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
+    try {
+        const newPost = await post.save();
+        res.status(201).json(newPost);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
 });
 
 app.put('/posts/:id', async (req, res) => {
-  try {
-    const updatedPost = await Post.findByIdAndUpdate(
-      req.params.id, {
-        title: req.body.title,
-        content: req.body.content,
-        updatedAt: Date.now()
-      }, { new: true }
-    );
-    res.json(updatedPost);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
+    try {
+        const updatedPost = await Post.findByIdAndUpdate(
+            req.params.id, {
+            title: req.body.title,
+            content: req.body.content,
+            updatedAt: Date.now()
+        }, { new: true });
+        res.json(updatedPost);
+    } catch (err) {
+        res.status(400).json({
+            message: err.message
+        });
+    }
 });
 
 app.delete('/posts/:id', async (req, res) => {
-  try {
-    await Post.findByIdAndDelete(req.params.id);
-    res.json({ message: 'Post deleted' });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Global error handling middleware
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Internal Server Error' });
+    try {
+        await Post.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Post deleted' });
+    } catch (err) {
+        res.status(500).json({
+            message: err.message
+        });
+    }
 });
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
